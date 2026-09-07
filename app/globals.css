@@ -70,9 +70,9 @@ h1 em { font: italic 500 .85em/1 Georgia, serif; letter-spacing: -.055em; }
 .tag-left { top: 38%; left: -2%; transform: translateX(-12px); }
 .tag-right { right: -1%; bottom: 30%; transform: translateX(12px); }
 .ingredient-tag.show { opacity: 1; transform: none; }
-.replay { position: absolute; z-index: 5; right: 5%; bottom: 5%; min-width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 0 12px; border: 1px solid var(--line); border-radius: 22px; background: rgba(244,242,236,.78); backdrop-filter: blur(7px); cursor: pointer; }
-.replay svg { width: 15px; stroke-width: 1.4; }.replay span { font-size: 8px; font-weight: 700; letter-spacing: .13em; }
-.replay:disabled { display: none; }
+.scroll-start-cue { position: absolute; z-index: 5; right: 5%; bottom: 5%; min-width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 0 13px; border: 1px solid var(--line); border-radius: 22px; background: rgba(244,242,236,.82); backdrop-filter: blur(7px); pointer-events: none; transition: opacity .35s ease, transform .35s ease; }
+.scroll-start-cue svg { width: 14px; stroke-width: 1.4; animation: nudge 1.8s ease-in-out infinite; }.scroll-start-cue span { font-size: 8px; font-weight: 700; letter-spacing: .13em; }
+.scroll-start-cue.started { opacity: 0; transform: translateY(6px); }
 .phase-caption { display: none; }
 
 .side-rail { position: relative; justify-self: end; width: min(100%, 300px); min-height: 390px; }
@@ -89,7 +89,7 @@ h1 em { font: italic 500 .85em/1 Georgia, serif; letter-spacing: -.055em; }
 .progress-list .active span { color: #fff; background: var(--ink); border-color: var(--ink); box-shadow: 0 0 0 5px rgba(23,25,24,.08); }
 .progress-list .complete span { color: #fff; border-color: var(--pistachio-dark); background: var(--pistachio-dark); }
 
-.scroll-hint { position: absolute; bottom: 20px; left: 50%; display: flex; align-items: center; gap: 11px; color: var(--muted); font-size: 7px; font-weight: 700; letter-spacing: .16em; text-decoration: none; transform: translateX(-50%); }
+.scroll-hint { position: absolute; bottom: 20px; left: 50%; display: flex; align-items: center; gap: 11px; color: var(--muted); font-size: 7px; font-weight: 700; letter-spacing: .16em; transform: translateX(-50%); transition: opacity .3s ease; pointer-events: none; }
 .scroll-hint svg { width: 13px; animation: nudge 1.8s ease-in-out infinite; }
 @keyframes nudge { 50% { transform: translateY(4px); } }
 
@@ -198,7 +198,7 @@ footer > a:last-child { justify-self: end; text-decoration: none; }
   .price { font-size: 24px; }.primary { width: calc(100% - 20px); min-height: 52px; }
   .product-wrap { width: calc(100% + 20px); margin-left: -10px; margin-top: 2px; }
   .tag-left { left: 3%; }.tag-right { right: 3%; }.ingredient-tag { min-width: 82px; padding: 6px 7px; font-size: 6.5px; }
-  .replay { right: 5%; bottom: 4%; }.replay span { display: none; }
+  .scroll-start-cue { right: 5%; bottom: 4%; }
   .phase-caption { margin-inline: 10px; }
   .side-rail { width: 100%; }
   .progress-panel { padding: 28px 10px 0; }.rail-kicker { font-size: 7px; }.progress-list b { font-size: 6px; letter-spacing: .02em; }

@@ -7,7 +7,6 @@ import {
   ArrowUpRight,
   Check,
   Menu,
-  RotateCcw,
   ShoppingBag,
   X,
 } from 'lucide-react';
@@ -33,10 +32,12 @@ const MILKS = [
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const rafRef = useRef<number | null>(null);
+  const scrollStartedRef = useRef(false);
   const [phase, setPhase] = useState(0);
   const [videoReady, setVideoReady] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [finished, setFinished] = useState(false);
+  const [scrollStarted, setScrollStarted] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [promoVisible, setPromoVisible] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -56,6 +57,8 @@ export default function Home() {
       setReducedMotion(query.matches);
       if (query.matches) {
         videoRef.current?.pause();
+        scrollStartedRef.current = false;
+        setScrollStarted(false);
         setPhase(PHASES.length - 1);
         setFinished(true);
       }
@@ -78,7 +81,7 @@ export default function Home() {
   useEffect(() => {
     const handleVisibility = () => {
       const video = videoRef.current;
-      if (!video || reducedMotion || finished) return;
+      if (!video || reducedMotion || finished || !scrollStartedRef.current) return;
       if (document.hidden) video.pause();
       else void video.play().catch(() => undefined);
     };
@@ -106,25 +109,70 @@ export default function Home() {
     };
   }, [playing]);
 
-  const startVideo = useCallback(() => {
+  const prepareVideo = useCallback(() => {
     const video = videoRef.current;
     setVideoReady(true);
     if (!video || reducedMotion) return;
-    void video.play().catch(() => {
-      setPhase(PHASES.length - 1);
-      setFinished(true);
-    });
+    if (!scrollStartedRef.current) {
+      video.pause();
+      if (video.currentTime === 0) video.currentTime = 0.01;
+    }
   }, [reducedMotion]);
 
-  const replay = useCallback(() => {
+  useEffect(() => {
     const video = videoRef.current;
     if (!video || reducedMotion) return;
-    setAdded(false);
-    setFinished(false);
-    setPhase(0);
-    video.currentTime = 0;
-    void video.play().catch(() => undefined);
-  }, [reducedMotion]);
+
+    if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) prepareVideo();
+    video.addEventListener('loadeddata', prepareVideo);
+    return () => video.removeEventListener('loadeddata', prepareVideo);
+  }, [prepareVideo, reducedMotion]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    const hero = document.getElementById('top');
+    if (!video || !hero || reducedMotion) return;
+
+    const resetAtTop = () => {
+      video.pause();
+      video.currentTime = 0.01;
+      scrollStartedRef.current = false;
+      setScrollStarted(false);
+      setFinished(false);
+      setPhase(0);
+    };
+
+    const handleScroll = () => {
+      if (window.scrollY <= 4) {
+        if (scrollStartedRef.current || finished) resetAtTop();
+        return;
+      }
+
+      const bounds = hero.getBoundingClientRect();
+      const heroVisible = bounds.bottom > 80 && bounds.top < window.innerHeight;
+
+      if (!scrollStartedRef.current && window.scrollY > 12 && heroVisible) {
+        scrollStartedRef.current = true;
+        setScrollStarted(true);
+        setFinished(false);
+        setPhase(0);
+        void video.play().catch(() => {
+          scrollStartedRef.current = false;
+          setScrollStarted(false);
+        });
+        return;
+      }
+
+      if (!scrollStartedRef.current || finished) return;
+      if (!heroVisible && !video.paused) video.pause();
+      if (heroVisible && document.visibilityState === 'visible' && video.paused) {
+        void video.play().catch(() => undefined);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [finished, reducedMotion]);
 
   const goToOrder = () => document.getElementById('order')?.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth' });
 
@@ -174,11 +222,10 @@ export default function Home() {
                 ref={videoRef}
                 muted
                 playsInline
-                autoPlay
                 preload="metadata"
-                poster="/assets/drink-final.webp"
+                poster={videoReady ? undefined : '/assets/drink-final.webp'}
                 aria-hidden="true"
-                onCanPlay={startVideo}
+                onLoadedData={prepareVideo}
                 onPlay={() => { setVideoReady(true); setPlaying(true); }}
                 onPause={() => setPlaying(false)}
                 onEnded={() => { setPlaying(false); setPhase(PHASES.length - 1); setFinished(true); }}
@@ -196,14 +243,16 @@ export default function Home() {
             <div className={`ingredient-tag tag-left ${finished ? 'show' : ''}`}><span>01</span>ROASTED<br />PISTACHIO</div>
             <div className={`ingredient-tag tag-right ${finished ? 'show' : ''}`}><span>02</span>DUTCH<br />COCOA</div>
 
-            <button className="replay" onClick={replay} disabled={reducedMotion} aria-label="ドリンクの組み立てをもう一度再生">
-              <RotateCcw /> <span>REPLAY</span>
-            </button>
+            {!reducedMotion && (
+              <div className={`scroll-start-cue ${scrollStarted ? 'started' : ''}`} aria-hidden="true">
+                <span>SCROLL TO BUILD</span><ArrowDown />
+              </div>
+            )}
           </div>
           <div className="phase-caption" aria-live="polite">
             <span>{String(phase + 1).padStart(2, '0')}</span>
             <b>{PHASES[phase].label}</b>
-            <i>{finished ? 'READY' : playing ? 'BUILDING' : 'PAUSED'}</i>
+            <i>{finished ? 'READY' : playing ? 'BUILDING' : scrollStarted ? 'PAUSED' : 'SCROLL'}</i>
           </div>
         </div>
 
@@ -232,7 +281,9 @@ export default function Home() {
           />
         </aside>
 
-        <a className="scroll-hint" href="#story"><span>SCROLL TO DISCOVER</span><ArrowDown /></a>
+        <div className={`scroll-hint ${scrollStarted ? 'started' : ''}`} aria-hidden="true">
+          <span>{scrollStarted ? 'KEEP SCROLLING' : 'SCROLL TO BUILD'}</span><ArrowDown />
+        </div>
       </section>
 
       <section className="story-section" id="story">

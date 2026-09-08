@@ -19,6 +19,8 @@ const PHASES = [
   { label: 'FINISH', short: 'FINISH', start: 8.85 },
 ] as const;
 
+const BUILD_END_AT = 0.78;
+
 const SIZES = [
   { id: 'regular', label: 'REGULAR', detail: '12 OZ', add: 0 },
   { id: 'large', label: 'LARGE', detail: '16 OZ', add: 80 },
@@ -105,7 +107,8 @@ export default function Home() {
       const start = Math.max(0, scene.offsetTop - stickyOffset - promoOffset);
       const end = scene.offsetTop + scene.offsetHeight - window.innerHeight;
       const distance = Math.max(1, end - start);
-      const progress = Math.min(1, Math.max(0, (window.scrollY - start) / distance));
+      const sceneProgress = Math.min(1, Math.max(0, (window.scrollY - start) / distance));
+      const progress = Math.min(1, sceneProgress / BUILD_END_AT);
       const duration = Number.isFinite(video.duration) ? video.duration : 12.75;
       const targetTime = progress * Math.max(0.01, duration - 0.04);
 
@@ -171,16 +174,14 @@ export default function Home() {
       </div>
 
       <section className="hero-scroll-scene" id="top" ref={sceneRef}>
-      <div className="hero">
-        <div className="intro hero-enter">
+      <div className={`hero ${finished ? 'is-finished' : ''}`}>
+        <div className="intro">
           <p className="eyebrow">Signature drink</p>
           <h1>PISTACHIO<br />TIRAMISU<br /><em>ICED LATTE</em></h1>
           <p className="description">ピスタチオクリーム、エスプレッソ、ティラミスフォームを一層ずつ。静かな甘さと香ばしさを、ひとつのグラスに。</p>
-          <p className="price">¥780 <small>tax included</small></p>
-          <button className="primary" onClick={goToOrder}>ADD TO ORDER <ArrowUpRight /></button>
         </div>
 
-        <div className="product-wrap hero-enter delay-1">
+        <div className="product-wrap">
           <div className={`product-stage ${videoReady ? 'ready' : ''}`}>
             <Image className="poster" src="/assets/drink-final.webp" alt="完成したピスタチオティラミスアイスラテ" width={1200} height={1200} priority unoptimized />
             {!reducedMotion && (
@@ -210,7 +211,7 @@ export default function Home() {
               </div>
             )}
           </div>
-          <div className="phase-caption" aria-live="polite">
+          <div className="phase-caption">
             <span>{String(phase + 1).padStart(2, '0')}</span>
             <b>{PHASES[phase].label}</b>
             <i>{finished ? 'READY' : scrubProgress > 0 ? `${Math.round(scrubProgress * 100)}%` : 'SCROLL'}</i>
@@ -218,7 +219,7 @@ export default function Home() {
           </div>
         </div>
 
-        <aside className="side-rail hero-enter delay-2" aria-label="ドリンクの組み立て工程">
+        <aside className="side-rail" aria-label="ドリンクの組み立て工程">
           <div className={`progress-panel ${finished ? 'is-complete' : ''}`}>
             <p className="rail-kicker">BUILDING YOUR DRINK</p>
             <div className="progress-list">

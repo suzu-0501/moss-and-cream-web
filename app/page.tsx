@@ -1,337 +1,129 @@
-'use client';
-
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
-import {
-  ArrowDown,
-  ArrowUpRight,
-  Check,
-  Menu,
-  ShoppingBag,
-  X,
-} from 'lucide-react';
+import Link from 'next/link';
+import { ArrowDown, ArrowUpRight, Clock3, MapPin } from 'lucide-react';
 
-const PHASES = [
-  { label: 'ICE + MILK', short: 'ICE', start: 0 },
-  { label: 'ESPRESSO', short: 'ESPRESSO', start: 1.2 },
-  { label: 'PISTACHIO', short: 'PISTACHIO', start: 2.75 },
-  { label: 'CREAM', short: 'CREAM', start: 4.5 },
-  { label: 'FINISH', short: 'FINISH', start: 8.85 },
-] as const;
+const COFFEE_MENU = [
+  { name: 'PISTACHIO TIRAMISU ICED LATTE', jp: 'ピスタチオ・ティラミス・アイスラテ', price: '¥780', featured: true },
+  { name: 'BROWN SUGAR OAT LATTE', jp: 'ブラウンシュガー・オーツラテ', price: '¥690' },
+  { name: 'COCOA CREAM MOCHA', jp: 'ココアクリーム・モカ', price: '¥720' },
+  { name: 'ESPRESSO TONIC', jp: 'エスプレッソ・トニック', price: '¥650' },
+];
 
-const BUILD_END_AT = 0.78;
+const TEA_MENU = [
+  { name: 'MATCHA CLOUD', jp: '抹茶クラウド', price: '¥740' },
+  { name: 'HOJICHA CARAMEL LATTE', jp: 'ほうじ茶キャラメルラテ', price: '¥700' },
+  { name: 'CITRUS COLD BREW', jp: 'シトラス・コールドブリュー', price: '¥680' },
+];
 
-const SIZES = [
-  { id: 'regular', label: 'REGULAR', detail: '12 OZ', add: 0 },
-  { id: 'large', label: 'LARGE', detail: '16 OZ', add: 80 },
-] as const;
-
-const MILKS = [
-  { id: 'whole', label: 'WHOLE MILK', add: 0 },
-  { id: 'oat', label: 'OAT MILK', add: 50 },
-] as const;
-
-export default function Home() {
-  const sceneRef = useRef<HTMLElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const rafRef = useRef<number | null>(null);
-  const [phase, setPhase] = useState(0);
-  const [videoReady, setVideoReady] = useState(false);
-  const [scrubProgress, setScrubProgress] = useState(0);
-  const [reducedMotion, setReducedMotion] = useState(false);
-  const [promoVisible, setPromoVisible] = useState(true);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [size, setSize] = useState<(typeof SIZES)[number]['id']>('regular');
-  const [milk, setMilk] = useState<(typeof MILKS)[number]['id']>('whole');
-  const [added, setAdded] = useState(false);
-  const finished = reducedMotion || scrubProgress >= 0.995;
-
-  const total = useMemo(() => {
-    const sizePrice = SIZES.find((item) => item.id === size)?.add ?? 0;
-    const milkPrice = MILKS.find((item) => item.id === milk)?.add ?? 0;
-    return 780 + sizePrice + milkPrice;
-  }, [milk, size]);
-
-  useEffect(() => {
-    const query = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const update = () => {
-      setReducedMotion(query.matches);
-      if (query.matches) {
-        videoRef.current?.pause();
-        setPhase(PHASES.length - 1);
-        setScrubProgress(1);
-      }
-    };
-    update();
-    query.addEventListener('change', update);
-    return () => query.removeEventListener('change', update);
-  }, []);
-
-  useEffect(() => {
-    const nodes = document.querySelectorAll<HTMLElement>('[data-reveal]');
-    const observer = new IntersectionObserver(
-      (entries) => entries.forEach((entry) => entry.isIntersecting && entry.target.classList.add('is-visible')),
-      { threshold: 0.14 },
-    );
-    nodes.forEach((node) => observer.observe(node));
-    return () => observer.disconnect();
-  }, []);
-
-  const prepareVideo = useCallback(() => {
-    const video = videoRef.current;
-    setVideoReady(true);
-    if (!video || reducedMotion) return;
-    video.pause();
-    if (video.currentTime === 0) video.currentTime = 0.01;
-  }, [reducedMotion]);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video || reducedMotion) return;
-
-    if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) prepareVideo();
-    video.addEventListener('loadeddata', prepareVideo);
-    return () => video.removeEventListener('loadeddata', prepareVideo);
-  }, [prepareVideo, reducedMotion]);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    const scene = sceneRef.current;
-    if (!video || !scene || !videoReady || reducedMotion) return;
-
-    const syncToScroll = () => {
-      const header = document.querySelector<HTMLElement>('.header');
-      const promo = document.querySelector<HTMLElement>('.promo');
-      const stickyOffset = header?.offsetHeight ?? 0;
-      const promoOffset = promo?.offsetHeight ?? 0;
-      const start = Math.max(0, scene.offsetTop - stickyOffset - promoOffset);
-      const end = scene.offsetTop + scene.offsetHeight - window.innerHeight;
-      const distance = Math.max(1, end - start);
-      const sceneProgress = Math.min(1, Math.max(0, (window.scrollY - start) / distance));
-      const progress = Math.min(1, sceneProgress / BUILD_END_AT);
-      const duration = Number.isFinite(video.duration) ? video.duration : 12.75;
-      const targetTime = progress * Math.max(0.01, duration - 0.04);
-
-      video.pause();
-      if (Math.abs(video.currentTime - targetTime) > 0.012) video.currentTime = targetTime;
-      setScrubProgress((previous) => Math.abs(previous - progress) < 0.001 ? previous : progress);
-
-      let nextPhase = 0;
-      PHASES.forEach((item, index) => {
-        if (targetTime >= item.start) nextPhase = index;
-      });
-      setPhase((previous) => previous === nextPhase ? previous : nextPhase);
-    };
-
-    const queueSync = () => {
-      if (rafRef.current !== null) return;
-      rafRef.current = requestAnimationFrame(() => {
-        rafRef.current = null;
-        syncToScroll();
-      });
-    };
-
-    syncToScroll();
-    window.addEventListener('scroll', queueSync, { passive: true });
-    window.addEventListener('resize', queueSync);
-    return () => {
-      window.removeEventListener('scroll', queueSync);
-      window.removeEventListener('resize', queueSync);
-      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
-      rafRef.current = null;
-    };
-  }, [videoReady, reducedMotion]);
-
-  const goToOrder = () => document.getElementById('order')?.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth' });
-
+export default function CafeHome() {
   return (
-    <main className={`site-shell ${promoVisible ? '' : 'promo-dismissed'}`}>
-      {promoVisible && (
-        <div className="promo">
-          <span>ONLINE EXCLUSIVE · LAYERED TO ORDER</span>
-          <button onClick={() => setPromoVisible(false)} aria-label="お知らせを閉じる"><X /></button>
-        </div>
-      )}
+    <main className="cafe-home" id="top">
+      <div className="home-promo">MOSS AND CREAM · SPECIALTY COFFEE &amp; SLOW MOMENTS</div>
 
-      <header className="header">
-        <a className="brand" href="#top" aria-label="Moss and Cream ホーム">
+      <header className="home-header">
+        <Link className="brand" href="/" aria-label="Moss and Cream ホーム">
           <span>MOSS</span><i>AND</i><span>CREAM</span>
-        </a>
-        <nav aria-label="メインナビゲーション">
-          <a href="#story">STORY</a><a href="#layers">LAYERS</a><a href="#order">CUSTOMIZE</a>
+        </Link>
+        <nav aria-label="店舗ナビゲーション">
+          <a href="#featured">FEATURED</a>
+          <a href="#menu">MENU</a>
+          <a href="#visit">VISIT</a>
         </nav>
-        <div className="header-actions">
-          <button className="menu-button" onClick={() => setMenuOpen(true)} aria-label="メニューを開く"><Menu /></button>
-          <button onClick={goToOrder} aria-label="バッグを開く"><span className="bag-label">BAG</span><ShoppingBag /><sup>{added ? 1 : 0}</sup></button>
-        </div>
+        <a className="home-menu-link" href="#menu">VIEW MENU <ArrowDown /></a>
       </header>
 
-      <div className={`menu-panel ${menuOpen ? 'open' : ''}`} aria-hidden={!menuOpen}>
-        <button className="menu-close" onClick={() => setMenuOpen(false)} aria-label="メニューを閉じる"><X /></button>
-        <a href="#story" onClick={() => setMenuOpen(false)}>STORY</a>
-        <a href="#layers" onClick={() => setMenuOpen(false)}>LAYERS</a>
-        <a href="#order" onClick={() => setMenuOpen(false)}>CUSTOMIZE</a>
-      </div>
-
-      <section className="hero-scroll-scene" id="top" ref={sceneRef}>
-      <div className={`hero ${finished ? 'is-finished' : ''}`}>
-        <div className="intro">
-          <p className="eyebrow">Signature drink</p>
-          <h1>PISTACHIO<br />TIRAMISU<br /><em>ICED LATTE</em></h1>
-          <p className="description">ピスタチオクリーム、エスプレッソ、ティラミスフォームを一層ずつ。静かな甘さと香ばしさを、ひとつのグラスに。</p>
+      <section className="home-hero" aria-labelledby="home-title">
+        <Image src="/assets/storefront-hero.jpg" alt="静かな街角にあるMoss and Creamの店舗外観" fill priority sizes="100vw" />
+        <div className="home-hero-shade" />
+        <div className="home-hero-copy">
+          <p>Specialty coffee · Aomori</p>
+          <h1 id="home-title">A QUIET PLACE<br />FOR <em>GOOD COFFEE.</em></h1>
+          <span>素材が重なる瞬間まで楽しむ、小さなスペシャルティコーヒースタンド。</span>
         </div>
-
-        <div className="product-wrap">
-          <div className={`product-stage ${videoReady ? 'ready' : ''}`}>
-            <Image className="poster" src="/assets/drink-final.webp" alt="完成したピスタチオティラミスアイスラテ" width={1200} height={1200} priority unoptimized />
-            {!reducedMotion && (
-              <video
-                ref={videoRef}
-                muted
-                playsInline
-                preload="auto"
-                poster={videoReady ? undefined : '/assets/drink-final.webp'}
-                aria-hidden="true"
-                onLoadedData={prepareVideo}
-              >
-                <source media="(max-width: 767px)" src="/assets/drink-build-mobile.mp4" type="video/mp4" />
-                <source src="/assets/drink-build-master.mp4" type="video/mp4" />
-              </video>
-            )}
-
-            <svg className={`orbit ${finished ? 'show' : ''}`} viewBox="0 0 600 600" aria-hidden="true">
-              <ellipse cx="300" cy="300" rx="274" ry="162" />
-            </svg>
-            <div className={`ingredient-tag tag-left ${finished ? 'show' : ''}`}><span>01</span>ROASTED<br />PISTACHIO</div>
-            <div className={`ingredient-tag tag-right ${finished ? 'show' : ''}`}><span>02</span>DUTCH<br />COCOA</div>
-
-            {!reducedMotion && (
-              <div className={`scroll-start-cue ${scrubProgress > 0.025 ? 'started' : ''}`} aria-hidden="true">
-                <span>SCROLL TO BUILD</span><ArrowDown />
-              </div>
-            )}
-          </div>
-          <div className="phase-caption">
-            <span>{String(phase + 1).padStart(2, '0')}</span>
-            <b>{PHASES[phase].label}</b>
-            <i>{finished ? 'READY' : scrubProgress > 0 ? `${Math.round(scrubProgress * 100)}%` : 'SCROLL'}</i>
-            <span className="scrub-meter" aria-hidden="true"><i style={{ width: `${scrubProgress * 100}%` }} /></span>
-          </div>
-        </div>
-
-        <aside className="side-rail" aria-label="ドリンクの組み立て工程">
-          <div className={`progress-panel ${finished ? 'is-complete' : ''}`}>
-            <p className="rail-kicker">BUILDING YOUR DRINK</p>
-            <div className="progress-list">
-              {PHASES.map((item, index) => (
-                <div className={`${phase === index ? 'active' : ''} ${phase > index ? 'complete' : ''}`} key={item.label} aria-current={phase === index ? 'step' : undefined}>
-                  <span>{phase > index ? <Check /> : `0${index + 1}`}</span><b>{item.label}</b>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <Customizer
-            compact
-            visible={finished || reducedMotion}
-            size={size}
-            milk={milk}
-            total={total}
-            added={added}
-            onSize={setSize}
-            onMilk={setMilk}
-            onAdd={() => setAdded(true)}
-          />
-        </aside>
-
-        <div className={`scroll-hint ${finished ? 'finished' : scrubProgress > 0.025 ? 'started' : ''}`} aria-hidden="true">
-          <span>{finished ? 'SCROLL UP TO REWIND' : scrubProgress > 0 ? `${Math.round(scrubProgress * 100)}% · KEEP SCROLLING` : 'SCROLL TO BUILD'}</span><ArrowDown />
-        </div>
-      </div>
+        <a className="home-scroll" href="#featured"><span>DISCOVER THE MENU</span><ArrowDown /></a>
       </section>
 
-      <section className="story-section" id="story">
-        <div className="section-number" data-reveal>01 / THE STORY</div>
-        <div className="story-copy" data-reveal>
-          <p className="serif-kicker">Built in layers, tasted as one.</p>
-          <h2>重なるたび、<br />香りがほどける。</h2>
+      <section className="home-manifesto">
+        <p>01 / OUR PLACE</p>
+        <h2>一杯ができるまでを、<br /><em>体験に変える。</em></h2>
+        <div>
+          <p>その日の空気、豆の香り、クリームが重なる瞬間。Moss and Creamでは、メニューを選ぶ時間からコーヒー体験が始まります。</p>
+          <a href="#menu">すべてのメニューを見る <ArrowDown /></a>
         </div>
-        <p className="story-body" data-reveal>冷たいミルクと透明な氷。深く落ちるエスプレッソに、穏やかなピスタチオのコク。最後はティラミスフォーム、ココア、砕いたピスタチオで仕上げます。</p>
       </section>
 
-      <section className="layers-section" id="layers">
-        <div className="layers-heading" data-reveal>
-          <span>02 / INGREDIENTS</span>
-          <h2>THE QUIET<br /><em>INGREDIENTS</em></h2>
+      <section className="featured-drink" id="featured">
+        <div className="featured-image">
+          <Image src="/assets/drink-final.webp" alt="おすすめのピスタチオティラミスアイスラテ" fill sizes="(max-width: 800px) 100vw, 58vw" />
+          <span>BARISTA RECOMMENDATION</span>
         </div>
-        <article className="ingredient-card pistachio-card" data-reveal>
-          <div className="image-frame"><Image src="/assets/ingredient-pistachio.webp" alt="ローストピスタチオ" width={720} height={720} loading="lazy" unoptimized /></div>
-          <div><span>01</span><h3>ROASTED<br />PISTACHIO</h3><p>香ばしく、まろやか。層のあいだに長い余韻を残すグリーン。</p></div>
-        </article>
-        <article className="ingredient-card cocoa-card" data-reveal>
-          <div className="image-frame"><Image src="/assets/ingredient-cocoa.webp" alt="きめ細かなココアパウダー" width={720} height={720} loading="lazy" unoptimized /></div>
-          <div><span>02</span><h3>DUTCH<br />COCOA</h3><p>クリームの甘さを整える、ほろ苦い最後のひと振り。</p></div>
-        </article>
+        <div className="featured-copy">
+          <p>02 / FEATURED DRINK</p>
+          <h2>PISTACHIO<br />TIRAMISU<br /><em>ICED LATTE</em></h2>
+          <p className="featured-jp">香ばしいピスタチオ、深いエスプレッソ、軽やかなティラミスフォーム。層が生まれる工程をスクロールで体験できます。</p>
+          <div className="featured-price"><strong>¥780</strong><span>tax included</span></div>
+          <Link className="experience-link" href="/menu/pistachio-tiramisu-latte">
+            制作過程を見る <ArrowUpRight />
+          </Link>
+        </div>
       </section>
 
-      <section className="order-section" id="order">
-        <div className="order-visual" data-reveal>
-          <p>MAKE IT YOURS</p>
-          <h2>YOUR LATTE,<br /><em>YOUR LAYERS.</em></h2>
-          <Image src="/assets/drink-final.webp" alt="ピスタチオティラミスアイスラテ" width={1200} height={1200} loading="lazy" unoptimized />
+      <section className="cafe-menu" id="menu">
+        <div className="menu-heading">
+          <p>03 / FULL MENU</p>
+          <h2>CHOOSE YOUR<br /><em>QUIET FAVORITE.</em></h2>
+          <span>SCROLL EXPERIENCE 表示の商品から、その一杯ができるまでのストーリーへ進めます。</span>
         </div>
-        <Customizer
-          visible
-          size={size}
-          milk={milk}
-          total={total}
-          added={added}
-          onSize={setSize}
-          onMilk={setMilk}
-          onAdd={() => setAdded(true)}
-        />
+
+        <MenuGroup title="ESPRESSO & COFFEE" items={COFFEE_MENU} />
+        <MenuGroup title="MATCHA, TEA & SEASONAL" items={TEA_MENU} />
       </section>
 
-      <footer>
-        <a className="brand footer-brand" href="#top"><span>MOSS</span><i>AND</i><span>CREAM</span></a>
-        <p>AN INTERACTIVE PRODUCT STUDY · 2026</p>
+      <section className="visit-section" id="visit">
+        <div>
+          <p>04 / VISIT</p>
+          <h2>SEE YOU<br /><em>AT THE COUNTER.</em></h2>
+        </div>
+        <div className="visit-details">
+          <article><MapPin /><div><b>LOCATION</b><span>青森県弘前市の静かな街角<br />※営業用サンプル店舗です</span></div></article>
+          <article><Clock3 /><div><b>OPENING HOURS</b><span>MON–FRI 8:00–18:00<br />SAT–SUN 9:00–17:00</span></div></article>
+        </div>
+      </section>
+
+      <footer className="home-footer">
+        <Link className="brand footer-brand" href="/"><span>MOSS</span><i>AND</i><span>CREAM</span></Link>
+        <p>COFFEE, LAYERS &amp; QUIET MOMENTS · 2026</p>
         <a href="#top">BACK TO TOP ↑</a>
       </footer>
     </main>
   );
 }
 
-type CustomizerProps = {
-  compact?: boolean;
-  visible: boolean;
-  size: (typeof SIZES)[number]['id'];
-  milk: (typeof MILKS)[number]['id'];
-  total: number;
-  added: boolean;
-  onSize: (value: (typeof SIZES)[number]['id']) => void;
-  onMilk: (value: (typeof MILKS)[number]['id']) => void;
-  onAdd: () => void;
-};
+type MenuItem = { name: string; jp: string; price: string; featured?: boolean };
 
-function Customizer({ compact = false, visible, size, milk, total, added, onSize, onMilk, onAdd }: CustomizerProps) {
+function MenuGroup({ title, items }: { title: string; items: MenuItem[] }) {
   return (
-    <div className={`customizer ${compact ? 'compact' : ''} ${visible ? 'visible' : ''}`}>
-      <div className="customizer-head"><div><span>03 / PRODUCT</span><h2>CUSTOMIZE</h2></div><p>PISTACHIO TIRAMISU ICED LATTE</p></div>
-      <fieldset>
-        <legend>SIZE</legend>
-        <div className="choice-row">
-          {SIZES.map((item) => <button key={item.id} className={size === item.id ? 'selected' : ''} onClick={() => onSize(item.id)} aria-pressed={size === item.id}><b>{item.label}</b><small>{item.detail}{item.add ? ` · +¥${item.add}` : ''}</small></button>)}
-        </div>
-      </fieldset>
-      <fieldset>
-        <legend>MILK</legend>
-        <div className="choice-row">
-          {MILKS.map((item) => <button key={item.id} className={milk === item.id ? 'selected' : ''} onClick={() => onMilk(item.id)} aria-pressed={milk === item.id}><b>{item.label}</b><small>{item.add ? `+¥${item.add}` : 'INCLUDED'}</small></button>)}
-        </div>
-      </fieldset>
-      <div className="order-total"><span>TOTAL</span><strong>¥{total.toLocaleString('ja-JP')}</strong></div>
-      <button className={`add-button ${added ? 'added' : ''}`} onClick={onAdd}>{added ? <><Check /> ADDED TO DEMO BAG</> : <>ADD TO ORDER <ArrowUpRight /></>}</button>
-      <p className="demo-note" aria-live="polite">{added ? 'デモバッグに追加しました。実際の注文処理は行われません。' : '営業用デモのため、決済は発生しません。'}</p>
+    <div className="menu-group">
+      <h3>{title}</h3>
+      <div>
+        {items.map((item, index) => {
+          const content = (
+            <>
+              <span className="menu-index">{String(index + 1).padStart(2, '0')}</span>
+              <span className="menu-name"><b>{item.name}</b><small>{item.jp}</small></span>
+              {item.featured && <span className="menu-badge">SCROLL EXPERIENCE</span>}
+              <strong>{item.price}</strong>
+              <ArrowUpRight />
+            </>
+          );
+
+          return item.featured ? (
+            <Link className="menu-row is-active" href="/menu/pistachio-tiramisu-latte" key={item.name}>{content}</Link>
+          ) : (
+            <div className="menu-row" key={item.name}>{content}</div>
+          );
+        })}
+      </div>
     </div>
   );
 }

@@ -1,8 +1,9 @@
 'use client';
 
+/* oxlint-disable next/no-html-link-for-pages -- Native document navigation is required by the Sites runtime. */
+
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import {
   ArrowDown,
   ArrowUpRight,
@@ -188,11 +189,11 @@ export default function ProductExperience() {
       )}
 
       <header className="header">
-        <Link className="brand" href="/" aria-label="Moss and Cream 店舗トップ">
+        <a className="brand" href="/" aria-label="Moss and Cream 店舗トップ">
           <span>MOSS</span><i>AND</i><span>CREAM</span>
-        </Link>
+        </a>
         <nav aria-label="メインナビゲーション">
-          <Link href="/">CAFE</Link><a href="#story">STORY</a><a href="#order">CUSTOMIZE</a>
+          <a href="/">CAFE</a><a href="#story">STORY</a><a href="#order">CUSTOMIZE</a>
         </nav>
         <div className="header-actions">
           <button className="menu-button" onClick={() => setMenuOpen(true)} aria-label="メニューを開く"><Menu /></button>
@@ -202,7 +203,7 @@ export default function ProductExperience() {
 
       <div className={`menu-panel ${menuOpen ? 'open' : ''}`} aria-hidden={!menuOpen}>
         <button className="menu-close" onClick={() => setMenuOpen(false)} aria-label="メニューを閉じる"><X /></button>
-        <Link href="/" onClick={() => setMenuOpen(false)}>CAFE</Link>
+        <a href="/" onClick={() => setMenuOpen(false)}>CAFE</a>
         <a href="#story" onClick={() => setMenuOpen(false)}>STORY</a>
         <a href="#order" onClick={() => setMenuOpen(false)}>CUSTOMIZE</a>
       </div>
@@ -324,7 +325,7 @@ export default function ProductExperience() {
       </section>
 
       <footer>
-        <Link className="brand footer-brand" href="/"><span>MOSS</span><i>AND</i><span>CREAM</span></Link>
+        <a className="brand footer-brand" href="/"><span>MOSS</span><i>AND</i><span>CREAM</span></a>
         <p>AN INTERACTIVE PRODUCT STUDY · 2026</p>
         <a href="#top">BACK TO TOP ↑</a>
       </footer>

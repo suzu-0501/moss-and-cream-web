@@ -1,5 +1,5 @@
+/* oxlint-disable next/no-html-link-for-pages -- Native document navigation is required by the Sites runtime. */
 import Image from 'next/image';
-import Link from 'next/link';
 import { ArrowDown, ArrowUpRight, Clock3, MapPin } from 'lucide-react';
 
 const COFFEE_MENU = [
@@ -21,9 +21,9 @@ export default function CafeHome() {
       <div className="home-promo">MOSS AND CREAM · SPECIALTY COFFEE &amp; SLOW MOMENTS</div>
 
       <header className="home-header">
-        <Link className="brand" href="/" aria-label="Moss and Cream ホーム">
+        <a className="brand" href="/" aria-label="Moss and Cream ホーム">
           <span>MOSS</span><i>AND</i><span>CREAM</span>
-        </Link>
+        </a>
         <nav aria-label="店舗ナビゲーション">
           <a href="#featured">FEATURED</a>
           <a href="#menu">MENU</a>
@@ -62,9 +62,9 @@ export default function CafeHome() {
           <h2>PISTACHIO<br />TIRAMISU<br /><em>ICED LATTE</em></h2>
           <p className="featured-jp">香ばしいピスタチオ、深いエスプレッソ、軽やかなティラミスフォーム。層が生まれる工程をスクロールで体験できます。</p>
           <div className="featured-price"><strong>¥780</strong><span>tax included</span></div>
-          <Link className="experience-link" href="/menu/pistachio-tiramisu-latte">
+          <a className="experience-link" href="/menu/pistachio-tiramisu-latte">
             制作過程を見る <ArrowUpRight />
-          </Link>
+          </a>
         </div>
       </section>
 
@@ -91,7 +91,7 @@ export default function CafeHome() {
       </section>
 
       <footer className="home-footer">
-        <Link className="brand footer-brand" href="/"><span>MOSS</span><i>AND</i><span>CREAM</span></Link>
+        <a className="brand footer-brand" href="/"><span>MOSS</span><i>AND</i><span>CREAM</span></a>
         <p>COFFEE, LAYERS &amp; QUIET MOMENTS · 2026</p>
         <a href="#top">BACK TO TOP ↑</a>
       </footer>
@@ -118,7 +118,7 @@ function MenuGroup({ title, items }: { title: string; items: MenuItem[] }) {
           );
 
           return item.featured ? (
-            <Link className="menu-row is-active" href="/menu/pistachio-tiramisu-latte" key={item.name}>{content}</Link>
+            <a className="menu-row is-active" href="/menu/pistachio-tiramisu-latte" key={item.name}>{content}</a>
           ) : (
             <div className="menu-row" key={item.name}>{content}</div>
           );

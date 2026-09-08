@@ -90,6 +90,39 @@ export default function ProductExperience() {
     const video = videoRef.current;
     if (!video || reducedMotion) return;
 
+    const controller = new AbortController();
+    const source = window.matchMedia('(max-width: 767px)').matches
+      ? '/assets/drink-build-mobile.mp4'
+      : '/assets/drink-build-master.mp4';
+    let objectUrl: string | null = null;
+
+    setVideoReady(false);
+    fetch(source, { signal: controller.signal })
+      .then((response) => {
+        if (!response.ok) throw new Error(`Video request failed: ${response.status}`);
+        return response.blob();
+      })
+      .then((blob) => {
+        objectUrl = URL.createObjectURL(blob);
+        video.src = objectUrl;
+        video.load();
+      })
+      .catch((error: unknown) => {
+        if (error instanceof DOMException && error.name === 'AbortError') return;
+        video.src = source;
+        video.load();
+      });
+
+    return () => {
+      controller.abort();
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [reducedMotion]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || reducedMotion) return;
+
     if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) prepareVideo();
     video.addEventListener('loadeddata', prepareVideo);
     return () => video.removeEventListener('loadeddata', prepareVideo);
@@ -194,10 +227,7 @@ export default function ProductExperience() {
                 poster={videoReady ? undefined : '/assets/drink-final.webp'}
                 aria-hidden="true"
                 onLoadedData={prepareVideo}
-              >
-                <source media="(max-width: 767px)" src="/assets/drink-build-mobile.mp4" type="video/mp4" />
-                <source src="/assets/drink-build-master.mp4" type="video/mp4" />
-              </video>
+              />
             )}
 
             <svg className={`orbit ${finished ? 'show' : ''}`} viewBox="0 0 600 600" aria-hidden="true">

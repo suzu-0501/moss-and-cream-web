@@ -30,20 +30,19 @@ const MILKS = [
 ] as const;
 
 export default function Home() {
+  const sceneRef = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const rafRef = useRef<number | null>(null);
-  const scrollStartedRef = useRef(false);
   const [phase, setPhase] = useState(0);
   const [videoReady, setVideoReady] = useState(false);
-  const [playing, setPlaying] = useState(false);
-  const [finished, setFinished] = useState(false);
-  const [scrollStarted, setScrollStarted] = useState(false);
+  const [scrubProgress, setScrubProgress] = useState(0);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [promoVisible, setPromoVisible] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
   const [size, setSize] = useState<(typeof SIZES)[number]['id']>('regular');
   const [milk, setMilk] = useState<(typeof MILKS)[number]['id']>('whole');
   const [added, setAdded] = useState(false);
+  const finished = reducedMotion || scrubProgress >= 0.995;
 
   const total = useMemo(() => {
     const sizePrice = SIZES.find((item) => item.id === size)?.add ?? 0;
@@ -57,10 +56,8 @@ export default function Home() {
       setReducedMotion(query.matches);
       if (query.matches) {
         videoRef.current?.pause();
-        scrollStartedRef.current = false;
-        setScrollStarted(false);
         setPhase(PHASES.length - 1);
-        setFinished(true);
+        setScrubProgress(1);
       }
     };
     update();
@@ -78,45 +75,12 @@ export default function Home() {
     return () => observer.disconnect();
   }, []);
 
-  useEffect(() => {
-    const handleVisibility = () => {
-      const video = videoRef.current;
-      if (!video || reducedMotion || finished || !scrollStartedRef.current) return;
-      if (document.hidden) video.pause();
-      else void video.play().catch(() => undefined);
-    };
-    document.addEventListener('visibilitychange', handleVisibility);
-    return () => document.removeEventListener('visibilitychange', handleVisibility);
-  }, [finished, reducedMotion]);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video || !playing) return;
-
-    const sync = () => {
-      const current = video.currentTime;
-      let next = 0;
-      PHASES.forEach((item, index) => {
-        if (current >= item.start) next = index;
-      });
-      setPhase((previous) => (previous === next ? previous : next));
-      if (!video.paused && !video.ended) rafRef.current = requestAnimationFrame(sync);
-    };
-
-    rafRef.current = requestAnimationFrame(sync);
-    return () => {
-      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
-    };
-  }, [playing]);
-
   const prepareVideo = useCallback(() => {
     const video = videoRef.current;
     setVideoReady(true);
     if (!video || reducedMotion) return;
-    if (!scrollStartedRef.current) {
-      video.pause();
-      if (video.currentTime === 0) video.currentTime = 0.01;
-    }
+    video.pause();
+    if (video.currentTime === 0) video.currentTime = 0.01;
   }, [reducedMotion]);
 
   useEffect(() => {
@@ -130,49 +94,50 @@ export default function Home() {
 
   useEffect(() => {
     const video = videoRef.current;
-    const hero = document.getElementById('top');
-    if (!video || !hero || reducedMotion) return;
+    const scene = sceneRef.current;
+    if (!video || !scene || !videoReady || reducedMotion) return;
 
-    const resetAtTop = () => {
+    const syncToScroll = () => {
+      const header = document.querySelector<HTMLElement>('.header');
+      const promo = document.querySelector<HTMLElement>('.promo');
+      const stickyOffset = header?.offsetHeight ?? 0;
+      const promoOffset = promo?.offsetHeight ?? 0;
+      const start = Math.max(0, scene.offsetTop - stickyOffset - promoOffset);
+      const end = scene.offsetTop + scene.offsetHeight - window.innerHeight;
+      const distance = Math.max(1, end - start);
+      const progress = Math.min(1, Math.max(0, (window.scrollY - start) / distance));
+      const duration = Number.isFinite(video.duration) ? video.duration : 12.75;
+      const targetTime = progress * Math.max(0.01, duration - 0.04);
+
       video.pause();
-      video.currentTime = 0.01;
-      scrollStartedRef.current = false;
-      setScrollStarted(false);
-      setFinished(false);
-      setPhase(0);
+      if (Math.abs(video.currentTime - targetTime) > 0.012) video.currentTime = targetTime;
+      setScrubProgress((previous) => Math.abs(previous - progress) < 0.001 ? previous : progress);
+
+      let nextPhase = 0;
+      PHASES.forEach((item, index) => {
+        if (targetTime >= item.start) nextPhase = index;
+      });
+      setPhase((previous) => previous === nextPhase ? previous : nextPhase);
     };
 
-    const handleScroll = () => {
-      if (window.scrollY <= 4) {
-        if (scrollStartedRef.current || finished) resetAtTop();
-        return;
-      }
-
-      const bounds = hero.getBoundingClientRect();
-      const heroVisible = bounds.bottom > 80 && bounds.top < window.innerHeight;
-
-      if (!scrollStartedRef.current && window.scrollY > 12 && heroVisible) {
-        scrollStartedRef.current = true;
-        setScrollStarted(true);
-        setFinished(false);
-        setPhase(0);
-        void video.play().catch(() => {
-          scrollStartedRef.current = false;
-          setScrollStarted(false);
-        });
-        return;
-      }
-
-      if (!scrollStartedRef.current || finished) return;
-      if (!heroVisible && !video.paused) video.pause();
-      if (heroVisible && document.visibilityState === 'visible' && video.paused) {
-        void video.play().catch(() => undefined);
-      }
+    const queueSync = () => {
+      if (rafRef.current !== null) return;
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = null;
+        syncToScroll();
+      });
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [finished, reducedMotion]);
+    syncToScroll();
+    window.addEventListener('scroll', queueSync, { passive: true });
+    window.addEventListener('resize', queueSync);
+    return () => {
+      window.removeEventListener('scroll', queueSync);
+      window.removeEventListener('resize', queueSync);
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    };
+  }, [videoReady, reducedMotion]);
 
   const goToOrder = () => document.getElementById('order')?.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth' });
 
@@ -205,7 +170,8 @@ export default function Home() {
         <a href="#order" onClick={() => setMenuOpen(false)}>CUSTOMIZE</a>
       </div>
 
-      <section className="hero" id="top">
+      <section className="hero-scroll-scene" id="top" ref={sceneRef}>
+      <div className="hero">
         <div className="intro hero-enter">
           <p className="eyebrow">Signature drink</p>
           <h1>PISTACHIO<br />TIRAMISU<br /><em>ICED LATTE</em></h1>
@@ -222,16 +188,11 @@ export default function Home() {
                 ref={videoRef}
                 muted
                 playsInline
-                preload="metadata"
+                preload="auto"
                 poster={videoReady ? undefined : '/assets/drink-final.webp'}
                 aria-hidden="true"
                 onLoadedData={prepareVideo}
-                onPlay={() => { setVideoReady(true); setPlaying(true); }}
-                onPause={() => setPlaying(false)}
-                onEnded={() => { setPlaying(false); setPhase(PHASES.length - 1); setFinished(true); }}
               >
-                <source media="(max-width: 767px)" src="/assets/drink-build-mobile.webm" type="video/webm" />
-                <source media="(min-width: 768px)" src="/assets/drink-build-master.webm" type="video/webm" />
                 <source media="(max-width: 767px)" src="/assets/drink-build-mobile.mp4" type="video/mp4" />
                 <source src="/assets/drink-build-master.mp4" type="video/mp4" />
               </video>
@@ -244,7 +205,7 @@ export default function Home() {
             <div className={`ingredient-tag tag-right ${finished ? 'show' : ''}`}><span>02</span>DUTCH<br />COCOA</div>
 
             {!reducedMotion && (
-              <div className={`scroll-start-cue ${scrollStarted ? 'started' : ''}`} aria-hidden="true">
+              <div className={`scroll-start-cue ${scrubProgress > 0.025 ? 'started' : ''}`} aria-hidden="true">
                 <span>SCROLL TO BUILD</span><ArrowDown />
               </div>
             )}
@@ -252,7 +213,8 @@ export default function Home() {
           <div className="phase-caption" aria-live="polite">
             <span>{String(phase + 1).padStart(2, '0')}</span>
             <b>{PHASES[phase].label}</b>
-            <i>{finished ? 'READY' : playing ? 'BUILDING' : scrollStarted ? 'PAUSED' : 'SCROLL'}</i>
+            <i>{finished ? 'READY' : scrubProgress > 0 ? `${Math.round(scrubProgress * 100)}%` : 'SCROLL'}</i>
+            <span className="scrub-meter" aria-hidden="true"><i style={{ width: `${scrubProgress * 100}%` }} /></span>
           </div>
         </div>
 
@@ -281,9 +243,10 @@ export default function Home() {
           />
         </aside>
 
-        <div className={`scroll-hint ${scrollStarted ? 'started' : ''}`} aria-hidden="true">
-          <span>{scrollStarted ? 'KEEP SCROLLING' : 'SCROLL TO BUILD'}</span><ArrowDown />
+        <div className={`scroll-hint ${finished ? 'finished' : scrubProgress > 0.025 ? 'started' : ''}`} aria-hidden="true">
+          <span>{finished ? 'SCROLL UP TO REWIND' : scrubProgress > 0 ? `${Math.round(scrubProgress * 100)}% · KEEP SCROLLING` : 'SCROLL TO BUILD'}</span><ArrowDown />
         </div>
+      </div>
       </section>
 
       <section className="story-section" id="story">

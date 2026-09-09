@@ -2,6 +2,7 @@
 import Image from 'next/image';
 import { ArrowDown, ArrowUpRight, Clock3, MapPin } from 'lucide-react';
 import ExperienceLink from './ExperienceLink';
+import CafeCta from './CafeCta';
 
 const COFFEE_MENU = [
   { name: 'PISTACHIO TIRAMISU ICED LATTE', jp: 'ピスタチオ・ティラミス・アイスラテ', price: '¥780', featured: true },
@@ -88,6 +89,7 @@ export default function CafeHome() {
         <div className="visit-details">
           <article><MapPin /><div><b>LOCATION</b><span>青森県弘前市の静かな街角<br />※営業用サンプル店舗です</span></div></article>
           <article><Clock3 /><div><b>OPENING HOURS</b><span>MON–FRI 8:00–18:00<br />SAT–SUN 9:00–17:00</span></div></article>
+          <CafeCta />
         </div>
       </section>
 

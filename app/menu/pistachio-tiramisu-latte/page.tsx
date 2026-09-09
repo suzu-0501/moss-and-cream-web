@@ -181,6 +181,15 @@ export default function ProductExperience() {
 
   return (
     <main className={`site-shell ${promoVisible ? '' : 'promo-dismissed'}`}>
+      <div className="route-arrival" aria-hidden="true">
+        <div className="route-arrival-panel route-arrival-panel-left" />
+        <div className="route-arrival-panel route-arrival-panel-right" />
+        <div className="route-arrival-copy">
+          <span>BUILD YOUR DRINK</span>
+          <strong>SCROLL<br /><i>TO BEGIN</i></strong>
+        </div>
+      </div>
+
       {promoVisible && (
         <div className="promo">
           <span>ONLINE EXCLUSIVE · LAYERED TO ORDER</span>

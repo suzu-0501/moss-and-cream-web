@@ -1,6 +1,7 @@
 /* oxlint-disable next/no-html-link-for-pages -- Native document navigation is required by the Sites runtime. */
 import Image from 'next/image';
 import { ArrowDown, ArrowUpRight, Clock3, MapPin } from 'lucide-react';
+import ExperienceLink from './ExperienceLink';
 
 const COFFEE_MENU = [
   { name: 'PISTACHIO TIRAMISU ICED LATTE', jp: 'ピスタチオ・ティラミス・アイスラテ', price: '¥780', featured: true },
@@ -62,9 +63,9 @@ export default function CafeHome() {
           <h2>PISTACHIO<br />TIRAMISU<br /><em>ICED LATTE</em></h2>
           <p className="featured-jp">香ばしいピスタチオ、深いエスプレッソ、軽やかなティラミスフォーム。層が生まれる工程をスクロールで体験できます。</p>
           <div className="featured-price"><strong>¥780</strong><span>tax included</span></div>
-          <a className="experience-link" href="/menu/pistachio-tiramisu-latte">
+          <ExperienceLink className="experience-link" href="/menu/pistachio-tiramisu-latte">
             制作過程を見る <ArrowUpRight />
-          </a>
+          </ExperienceLink>
         </div>
       </section>
 
@@ -118,7 +119,7 @@ function MenuGroup({ title, items }: { title: string; items: MenuItem[] }) {
           );
 
           return item.featured ? (
-            <a className="menu-row is-active" href="/menu/pistachio-tiramisu-latte" key={item.name}>{content}</a>
+            <ExperienceLink className="menu-row is-active" href="/menu/pistachio-tiramisu-latte" key={item.name}>{content}</ExperienceLink>
           ) : (
             <div className="menu-row" key={item.name}>{content}</div>
           );

@@ -22,6 +22,42 @@ button { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
 button:focus-visible, a:focus-visible { outline: 2px solid var(--pistachio-dark); outline-offset: 4px; }
 img { max-width: 100%; }
+html.is-route-transitioning, html.is-route-transitioning body { overflow: hidden; }
+
+/* Page transition: menu selection -> drink experience */
+.route-transition, .route-arrival { position: fixed; z-index: 200; inset: 0; overflow: hidden; pointer-events: none; }
+.route-transition { visibility: hidden; }
+.route-transition.is-active { visibility: visible; }
+.route-transition-panel, .route-arrival-panel { position: absolute; inset-block: 0; width: 50.1%; background: var(--ink); will-change: transform; }
+.route-transition-panel-left { left: 0; transform: translateY(101%); }
+.route-transition-panel-right { right: 0; transform: translateY(-101%); }
+.route-transition.is-active .route-transition-panel-left { animation: transitionPanelIn .78s cubic-bezier(.76, 0, .24, 1) forwards; }
+.route-transition.is-active .route-transition-panel-right { animation: transitionPanelIn .78s cubic-bezier(.76, 0, .24, 1) forwards; }
+.route-transition.is-active::after { content: ''; position: absolute; z-index: 2; top: 0; bottom: 0; left: 50%; width: 1px; background: rgba(213,224,174,.42); transform: scaleY(0); animation: transitionLineIn .42s .45s ease forwards; }
+.route-transition-copy, .route-arrival-copy { position: absolute; z-index: 3; top: 50%; left: 50%; width: min(82vw, 720px); color: var(--paper-soft); text-align: center; transform: translate(-50%, -48%); }
+.route-transition-copy { opacity: 0; }
+.route-transition.is-active .route-transition-copy { animation: transitionCopyIn .45s .4s ease forwards; }
+.route-transition-copy > span, .route-arrival-copy > span { display: block; margin-bottom: 25px; color: #c8d39d; font-size: 8px; font-weight: 750; letter-spacing: .25em; }
+.route-transition-copy > strong { display: block; font: 850 clamp(50px, 7vw, 108px)/.78 "Arial Narrow", "Helvetica Neue", sans-serif; letter-spacing: -.065em; }
+.route-transition-copy > strong i, .route-arrival-copy > strong i { color: #dce2c0; font: italic 500 .72em/1 Georgia, serif; }
+.route-transition-copy > div { width: min(390px, 72vw); display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 15px; margin: 32px auto 0; }
+.route-transition-copy > div::before { content: ''; grid-column: 2; grid-row: 1; height: 1px; background: rgba(255,255,255,.25); }
+.route-transition-copy b, .route-transition-copy em { font-size: 7px; font-style: normal; font-weight: 700; letter-spacing: .15em; }
+.route-transition-copy em { grid-column: 1 / -1; margin-top: 9px; color: #999f97; }
+
+.route-arrival { animation: arrivalLayerAway .01s 1.24s forwards; }
+.route-arrival-panel-left { left: 0; animation: arrivalPanelLeft .8s .48s cubic-bezier(.76, 0, .24, 1) forwards; }
+.route-arrival-panel-right { right: 0; animation: arrivalPanelRight .8s .48s cubic-bezier(.76, 0, .24, 1) forwards; }
+.route-arrival-copy { opacity: 1; animation: arrivalCopyAway .34s .28s ease forwards; }
+.route-arrival-copy > strong { display: block; font: 850 clamp(58px, 8vw, 124px)/.8 "Arial Narrow", "Helvetica Neue", sans-serif; letter-spacing: -.067em; }
+
+@keyframes transitionPanelIn { to { transform: translateY(0); } }
+@keyframes transitionLineIn { to { transform: scaleY(1); } }
+@keyframes transitionCopyIn { to { opacity: 1; transform: translate(-50%, -50%); } }
+@keyframes arrivalPanelLeft { to { transform: translateY(-101%); } }
+@keyframes arrivalPanelRight { to { transform: translateY(101%); } }
+@keyframes arrivalCopyAway { to { opacity: 0; transform: translate(-50%, -53%); } }
+@keyframes arrivalLayerAway { to { visibility: hidden; } }
 
 .site-shell { min-height: 100svh; overflow: clip; background: var(--paper); }
 .promo { position: relative; z-index: 50; height: 30px; display: grid; place-items: center; padding: 0 50px; color: #f8f7f2; background: var(--pistachio-dark); font-size: 9px; font-weight: 700; letter-spacing: .2em; }

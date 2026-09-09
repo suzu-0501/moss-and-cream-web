@@ -2,6 +2,8 @@
 
 メニューからドリンクを選び、スクロール量に合わせて一杯が完成していく過程を体験できる、架空のスペシャルティコーヒースタンド向けWebサイトです。
 
+**公開Web:** https://suzu-0501.github.io/moss-and-cream-web-test/
+
 ## 主な機能
 
 - 店舗外観とおすすめドリンクを中心にしたメニュートップ
@@ -21,7 +23,9 @@
 
 ```text
 .
-├── .github/workflows/ci.yml          # lint・buildの自動確認
+├── .github/workflows/
+│   ├── ci.yml                        # lint・buildの自動確認
+│   └── pages.yml                     # GitHub Pagesへの自動公開
 ├── .openai/hosting.json              # Sites公開設定
 ├── app/
 │   ├── globals.css                   # 全体デザイン・レスポンシブ・演出
@@ -30,6 +34,7 @@
 │   └── menu/pistachio-tiramisu-latte/
 │       └── page.tsx                  # スクロール連動ドリンク体験
 ├── docs/requirements.md              # 実装要件・受入条件
+├── github-pages/                     # GitHub Pages用エントリー
 ├── public/
 │   ├── assets/                       # 動画・完成画像・店舗／素材画像
 │   ├── favicon.svg
@@ -54,6 +59,7 @@ npm run dev
 ```bash
 npm run lint
 npm run build
+npm run build:pages
 ```
 
 ## 技術構成
@@ -67,4 +73,3 @@ npm run build
 ## 注意事項
 
 このサイトは営業提案用のサンプルです。店舗名、所在地、価格、営業時間などはデモ用の内容です。画像・動画素材を別案件へ転用する場合は、各素材の利用条件を確認してください。
-

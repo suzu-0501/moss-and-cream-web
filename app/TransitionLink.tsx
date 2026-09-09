@@ -4,6 +4,7 @@ import type { MouseEvent, ReactNode } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import DrinkTransitionVisual from './DrinkTransitionVisual';
 import BrandMark from './BrandMark';
+import { withBasePath } from './basePath';
 
 type TransitionLinkProps = {
   href: string;
@@ -30,6 +31,7 @@ export default function TransitionLink({
 }: TransitionLinkProps) {
   const [transitioning, setTransitioning] = useState(false);
   const timerRef = useRef<number | null>(null);
+  const resolvedHref = withBasePath(href);
 
   useEffect(() => () => {
     if (timerRef.current !== null) window.clearTimeout(timerRef.current);
@@ -55,13 +57,13 @@ export default function TransitionLink({
     document.documentElement.classList.add('is-route-transitioning');
 
     timerRef.current = window.setTimeout(() => {
-      window.location.assign(href);
+      window.location.assign(resolvedHref);
     }, 980);
   };
 
   return (
     <>
-      <a className={className} href={href} onClick={navigate} aria-label={ariaLabel} aria-busy={transitioning || undefined}>
+      <a className={className} href={resolvedHref} onClick={navigate} aria-label={ariaLabel} aria-busy={transitioning || undefined}>
         {children}
       </a>
       <div className={`route-transition ${visual === 'drink' ? 'route-transition--drink' : ''} ${transitioning ? 'is-active' : ''}`} aria-hidden="true">

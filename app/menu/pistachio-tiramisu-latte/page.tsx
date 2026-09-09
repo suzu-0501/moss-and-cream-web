@@ -7,6 +7,7 @@ import Image from 'next/image';
 import TransitionLink from '../../TransitionLink';
 import RouteArrival from '../../RouteArrival';
 import BrandLockup from '../../BrandLockup';
+import { withBasePath } from '../../basePath';
 import {
   ArrowDown,
   ArrowUpRight,
@@ -95,9 +96,9 @@ export default function ProductExperience() {
     if (!video || reducedMotion) return;
 
     const controller = new AbortController();
-    const source = window.matchMedia('(max-width: 767px)').matches
+    const source = withBasePath(window.matchMedia('(max-width: 767px)').matches
       ? '/assets/drink-build-mobile.mp4'
-      : '/assets/drink-build-master.mp4';
+      : '/assets/drink-build-master.mp4');
     let objectUrl: string | null = null;
 
     setVideoReady(false);
@@ -230,7 +231,7 @@ export default function ProductExperience() {
                 muted
                 playsInline
                 preload="auto"
-                poster={videoReady ? undefined : '/assets/drink-final.webp'}
+                poster={videoReady ? undefined : withBasePath('/assets/drink-final.webp')}
                 aria-hidden="true"
                 onLoadedData={prepareVideo}
               />

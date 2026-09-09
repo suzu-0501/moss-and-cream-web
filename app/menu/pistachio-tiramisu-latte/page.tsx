@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import TransitionLink from '../../TransitionLink';
 import RouteArrival from '../../RouteArrival';
+import BrandLockup from '../../BrandLockup';
 import {
   ArrowDown,
   ArrowUpRight,
@@ -194,7 +195,7 @@ export default function ProductExperience() {
 
       <header className="header">
         <TransitionLink className="brand" href="/" destination="CAFE" accent="HOME" detail="A QUIET PLACE FOR GOOD COFFEE" ariaLabel="Moss and Cream 店舗トップ">
-          <span>MOSS</span><i>AND</i><span>CREAM</span>
+          <BrandLockup />
         </TransitionLink>
         <nav aria-label="メインナビゲーション">
           <TransitionLink href="/" destination="CAFE" accent="HOME" detail="A QUIET PLACE FOR GOOD COFFEE">CAFE</TransitionLink><a href="#story">STORY</a><a href="#order">CUSTOMIZE</a>
@@ -329,7 +330,7 @@ export default function ProductExperience() {
       </section>
 
       <footer>
-        <TransitionLink className="brand footer-brand" href="/" destination="CAFE" accent="HOME" detail="A QUIET PLACE FOR GOOD COFFEE"><span>MOSS</span><i>AND</i><span>CREAM</span></TransitionLink>
+        <TransitionLink className="brand footer-brand" href="/" destination="CAFE" accent="HOME" detail="A QUIET PLACE FOR GOOD COFFEE" ariaLabel="Moss and Cream 店舗トップ"><BrandLockup /></TransitionLink>
         <p>AN INTERACTIVE PRODUCT STUDY · 2026</p>
         <a href="#top">BACK TO TOP ↑</a>
       </footer>

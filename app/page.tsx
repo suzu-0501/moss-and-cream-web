@@ -5,6 +5,7 @@ import TransitionLink from './TransitionLink';
 import CafeCta from './CafeCta';
 import SpaceSection from './SpaceSection';
 import RouteArrival from './RouteArrival';
+import BrandLockup from './BrandLockup';
 
 const COFFEE_MENU = [
   { name: 'PISTACHIO TIRAMISU ICED LATTE', jp: 'ピスタチオ・ティラミス・アイスラテ', price: '¥780', featured: true },
@@ -27,7 +28,7 @@ export default function CafeHome() {
 
       <header className="home-header">
         <a className="brand" href="/" aria-label="Moss and Cream ホーム">
-          <span>MOSS</span><i>AND</i><span>CREAM</span>
+          <BrandLockup />
         </a>
         <nav aria-label="店舗ナビゲーション">
           <a href="#featured">FEATURED</a>
@@ -100,7 +101,7 @@ export default function CafeHome() {
       </section>
 
       <footer className="home-footer">
-        <a className="brand footer-brand" href="/"><span>MOSS</span><i>AND</i><span>CREAM</span></a>
+        <a className="brand footer-brand" href="/" aria-label="Moss and Cream ホーム"><BrandLockup /></a>
         <p>COFFEE, LAYERS &amp; QUIET MOMENTS · 2026</p>
         <a href="#top">BACK TO TOP ↑</a>
       </footer>

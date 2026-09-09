@@ -3,6 +3,7 @@
 import type { MouseEvent, ReactNode } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import DrinkTransitionVisual from './DrinkTransitionVisual';
+import BrandMark from './BrandMark';
 
 type TransitionLinkProps = {
   href: string;
@@ -66,6 +67,7 @@ export default function TransitionLink({
       <div className={`route-transition ${visual === 'drink' ? 'route-transition--drink' : ''} ${transitioning ? 'is-active' : ''}`} aria-hidden="true">
         <div className="route-transition-panel route-transition-panel-left" />
         <div className="route-transition-panel route-transition-panel-right" />
+        <div className="route-brand-seal"><BrandMark /></div>
         {visual === 'drink' && <DrinkTransitionVisual />}
         <div className="route-transition-copy">
           <span>MOSS AND CREAM · AOMORI</span>

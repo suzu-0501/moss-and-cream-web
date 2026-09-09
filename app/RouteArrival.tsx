@@ -1,4 +1,5 @@
 import DrinkTransitionVisual from './DrinkTransitionVisual';
+import BrandMark from './BrandMark';
 
 type RouteArrivalProps = {
   destination: string;
@@ -12,6 +13,7 @@ export default function RouteArrival({ destination, accent, detail, visual }: Ro
     <div className={`route-arrival ${visual === 'drink' ? 'route-arrival--drink' : ''}`} aria-hidden="true">
       <div className="route-arrival-panel route-arrival-panel-left" />
       <div className="route-arrival-panel route-arrival-panel-right" />
+      <div className="route-brand-seal"><BrandMark /></div>
       {visual === 'drink' && <DrinkTransitionVisual />}
       <div className="route-arrival-copy">
         <span>MOSS AND CREAM · AOMORI</span>

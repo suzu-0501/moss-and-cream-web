@@ -37,9 +37,9 @@ html.reservation-open, html.reservation-open body { overflow: hidden; }
 .route-transition.is-active::after { content: ''; position: absolute; z-index: 2; top: 0; bottom: 0; left: 50%; width: 1px; background: rgba(213,224,174,.42); transform: scaleY(0); animation: transitionLineIn .42s .45s ease forwards; }
 .route-brand-seal { position: absolute; z-index: 2; top: 50%; left: 50%; width: clamp(420px, 72vw, 1040px); aspect-ratio: 1; transform: translate(-50%, -50%) scale(.76) rotate(-12deg); opacity: 0; }
 .route-brand-seal .brand-mark-shell { width: 100%; height: 100%; overflow: visible; border: 0; border-radius: 0; background: transparent; }
-.route-brand-seal .brand-mark-image { filter: grayscale(1) contrast(1.35); mix-blend-mode: multiply; }
+.route-brand-seal .brand-mark-image { filter: none; mix-blend-mode: normal; }
 .route-transition.is-active .route-brand-seal { animation: routeBrandIn .78s .12s cubic-bezier(.2,.8,.2,1) forwards; }
-.route-arrival .route-brand-seal { opacity: .68; transform: translate(-50%, -50%) scale(1) rotate(-2deg); animation: routeBrandAway .72s .12s ease forwards; }
+.route-arrival .route-brand-seal { opacity: .15; transform: translate(-50%, -50%) scale(1) rotate(-2deg); animation: routeBrandAway .72s .12s ease forwards; }
 .route-transition-copy, .route-arrival-copy { position: absolute; z-index: 3; top: 50%; left: 50%; width: min(82vw, 720px); color: var(--paper-soft); text-align: center; transform: translate(-50%, -48%); }
 .route-transition-copy { opacity: 0; }
 .route-transition.is-active .route-transition-copy { animation: transitionCopyIn .45s .4s ease forwards; }
@@ -78,7 +78,7 @@ html.reservation-open, html.reservation-open body { overflow: hidden; }
 @keyframes routeLayerLine { to { transform: scaleX(1); } }
 @keyframes routeLayerLabel { to { opacity: 1; } }
 @keyframes routeOrbit { to { transform: rotate(360deg); } }
-@keyframes routeBrandIn { to { opacity: .68; transform: translate(-50%, -50%) scale(1) rotate(-2deg); } }
+@keyframes routeBrandIn { to { opacity: .15; transform: translate(-50%, -50%) scale(1) rotate(-2deg); } }
 @keyframes routeBrandAway { to { opacity: 0; transform: translate(-50%, -50%) scale(1.14) rotate(5deg); } }
 
 .route-arrival { animation: arrivalLayerAway .01s 1.24s forwards; }

@@ -67,7 +67,7 @@ export default function TransitionLink({
       <div className={`route-transition ${visual === 'drink' ? 'route-transition--drink' : ''} ${transitioning ? 'is-active' : ''}`} aria-hidden="true">
         <div className="route-transition-panel route-transition-panel-left" />
         <div className="route-transition-panel route-transition-panel-right" />
-        <div className="route-brand-seal"><BrandMark /></div>
+        <div className="route-brand-seal"><BrandMark color="white" /></div>
         {visual === 'drink' && <DrinkTransitionVisual />}
         <div className="route-transition-copy">
           <span>MOSS AND CREAM · AOMORI</span>

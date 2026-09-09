@@ -183,7 +183,7 @@ export default function ProductExperience() {
 
   return (
     <main className={`site-shell ${promoVisible ? '' : 'promo-dismissed'}`}>
-      <RouteArrival destination="DRINK" accent="EXPERIENCE" detail="PISTACHIO TIRAMISU ICED LATTE · SCROLL TO BUILD" />
+      <RouteArrival destination="DRINK" accent="EXPERIENCE" detail="PISTACHIO TIRAMISU ICED LATTE · SCROLL TO BUILD" visual="drink" />
 
       {promoVisible && (
         <div className="promo">

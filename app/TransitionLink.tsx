@@ -2,6 +2,7 @@
 
 import type { MouseEvent, ReactNode } from 'react';
 import { useEffect, useRef, useState } from 'react';
+import DrinkTransitionVisual from './DrinkTransitionVisual';
 
 type TransitionLinkProps = {
   href: string;
@@ -12,6 +13,7 @@ type TransitionLinkProps = {
   detail: string;
   ariaLabel?: string;
   onClick?: (event: MouseEvent<HTMLAnchorElement>) => void;
+  visual?: 'drink';
 };
 
 export default function TransitionLink({
@@ -23,6 +25,7 @@ export default function TransitionLink({
   detail,
   ariaLabel,
   onClick,
+  visual,
 }: TransitionLinkProps) {
   const [transitioning, setTransitioning] = useState(false);
   const timerRef = useRef<number | null>(null);
@@ -60,9 +63,10 @@ export default function TransitionLink({
       <a className={className} href={href} onClick={navigate} aria-label={ariaLabel} aria-busy={transitioning || undefined}>
         {children}
       </a>
-      <div className={`route-transition ${transitioning ? 'is-active' : ''}`} aria-hidden="true">
+      <div className={`route-transition ${visual === 'drink' ? 'route-transition--drink' : ''} ${transitioning ? 'is-active' : ''}`} aria-hidden="true">
         <div className="route-transition-panel route-transition-panel-left" />
         <div className="route-transition-panel route-transition-panel-right" />
+        {visual === 'drink' && <DrinkTransitionVisual />}
         <div className="route-transition-copy">
           <span>MOSS AND CREAM · AOMORI</span>
           <strong>{destination}<br /><i>{accent}</i></strong>

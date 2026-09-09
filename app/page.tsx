@@ -70,7 +70,7 @@ export default function CafeHome() {
           <h2>PISTACHIO<br />TIRAMISU<br /><em>ICED LATTE</em></h2>
           <p className="featured-jp">香ばしいピスタチオ、深いエスプレッソ、軽やかなティラミスフォーム。層が生まれる工程をスクロールで体験できます。</p>
           <div className="featured-price"><strong>¥780</strong><span>tax included</span></div>
-          <TransitionLink className="experience-link" href="/menu/pistachio-tiramisu-latte" destination="DRINK" accent="EXPERIENCE" detail="PISTACHIO TIRAMISU ICED LATTE">
+          <TransitionLink className="experience-link" href="/menu/pistachio-tiramisu-latte" destination="DRINK" accent="EXPERIENCE" detail="PISTACHIO TIRAMISU ICED LATTE" visual="drink">
             制作過程を見る <ArrowUpRight />
           </TransitionLink>
         </div>
@@ -127,7 +127,7 @@ function MenuGroup({ title, items }: { title: string; items: MenuItem[] }) {
           );
 
           return item.featured ? (
-            <TransitionLink className="menu-row is-active" href="/menu/pistachio-tiramisu-latte" destination="DRINK" accent="EXPERIENCE" detail={item.name} key={item.name}>{content}</TransitionLink>
+            <TransitionLink className="menu-row is-active" href="/menu/pistachio-tiramisu-latte" destination="DRINK" accent="EXPERIENCE" detail={item.name} visual="drink" key={item.name}>{content}</TransitionLink>
           ) : (
             <div className="menu-row" key={item.name}>{content}</div>
           );

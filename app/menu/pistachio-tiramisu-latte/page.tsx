@@ -4,6 +4,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
+import TransitionLink from '../../TransitionLink';
+import RouteArrival from '../../RouteArrival';
 import {
   ArrowDown,
   ArrowUpRight,
@@ -181,14 +183,7 @@ export default function ProductExperience() {
 
   return (
     <main className={`site-shell ${promoVisible ? '' : 'promo-dismissed'}`}>
-      <div className="route-arrival" aria-hidden="true">
-        <div className="route-arrival-panel route-arrival-panel-left" />
-        <div className="route-arrival-panel route-arrival-panel-right" />
-        <div className="route-arrival-copy">
-          <span>BUILD YOUR DRINK</span>
-          <strong>SCROLL<br /><i>TO BEGIN</i></strong>
-        </div>
-      </div>
+      <RouteArrival destination="DRINK" accent="EXPERIENCE" detail="PISTACHIO TIRAMISU ICED LATTE · SCROLL TO BUILD" />
 
       {promoVisible && (
         <div className="promo">
@@ -198,11 +193,11 @@ export default function ProductExperience() {
       )}
 
       <header className="header">
-        <a className="brand" href="/" aria-label="Moss and Cream 店舗トップ">
+        <TransitionLink className="brand" href="/" destination="CAFE" accent="HOME" detail="A QUIET PLACE FOR GOOD COFFEE" ariaLabel="Moss and Cream 店舗トップ">
           <span>MOSS</span><i>AND</i><span>CREAM</span>
-        </a>
+        </TransitionLink>
         <nav aria-label="メインナビゲーション">
-          <a href="/">CAFE</a><a href="#story">STORY</a><a href="#order">CUSTOMIZE</a>
+          <TransitionLink href="/" destination="CAFE" accent="HOME" detail="A QUIET PLACE FOR GOOD COFFEE">CAFE</TransitionLink><a href="#story">STORY</a><a href="#order">CUSTOMIZE</a>
         </nav>
         <div className="header-actions">
           <button className="menu-button" onClick={() => setMenuOpen(true)} aria-label="メニューを開く"><Menu /></button>
@@ -212,7 +207,7 @@ export default function ProductExperience() {
 
       <div className={`menu-panel ${menuOpen ? 'open' : ''}`} aria-hidden={!menuOpen}>
         <button className="menu-close" onClick={() => setMenuOpen(false)} aria-label="メニューを閉じる"><X /></button>
-        <a href="/" onClick={() => setMenuOpen(false)}>CAFE</a>
+        <TransitionLink href="/" destination="CAFE" accent="HOME" detail="A QUIET PLACE FOR GOOD COFFEE" onClick={() => setMenuOpen(false)}>CAFE</TransitionLink>
         <a href="#story" onClick={() => setMenuOpen(false)}>STORY</a>
         <a href="#order" onClick={() => setMenuOpen(false)}>CUSTOMIZE</a>
       </div>
@@ -334,7 +329,7 @@ export default function ProductExperience() {
       </section>
 
       <footer>
-        <a className="brand footer-brand" href="/"><span>MOSS</span><i>AND</i><span>CREAM</span></a>
+        <TransitionLink className="brand footer-brand" href="/" destination="CAFE" accent="HOME" detail="A QUIET PLACE FOR GOOD COFFEE"><span>MOSS</span><i>AND</i><span>CREAM</span></TransitionLink>
         <p>AN INTERACTIVE PRODUCT STUDY · 2026</p>
         <a href="#top">BACK TO TOP ↑</a>
       </footer>

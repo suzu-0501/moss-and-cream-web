@@ -45,6 +45,7 @@ html.reservation-open, html.reservation-open body { overflow: hidden; }
 .route-transition-copy > div::before { content: ''; grid-column: 2; grid-row: 1; height: 1px; background: rgba(255,255,255,.25); }
 .route-transition-copy b, .route-transition-copy em { font-size: 7px; font-style: normal; font-weight: 700; letter-spacing: .15em; }
 .route-transition-copy em { grid-column: 1 / -1; margin-top: 9px; color: #999f97; }
+.route-arrival-copy > small { display: block; margin-top: 28px; color: #9da29a; font-size: 7px; font-weight: 700; letter-spacing: .17em; }
 
 .route-arrival { animation: arrivalLayerAway .01s 1.24s forwards; }
 .route-arrival-panel-left { left: 0; animation: arrivalPanelLeft .8s .48s cubic-bezier(.76, 0, .24, 1) forwards; }

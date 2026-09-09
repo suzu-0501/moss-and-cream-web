@@ -1,9 +1,10 @@
 /* oxlint-disable next/no-html-link-for-pages -- Native document navigation is required by the Sites runtime. */
 import Image from 'next/image';
 import { ArrowDown, ArrowUpRight, Clock3, MapPin } from 'lucide-react';
-import ExperienceLink from './ExperienceLink';
+import TransitionLink from './TransitionLink';
 import CafeCta from './CafeCta';
 import SpaceSection from './SpaceSection';
+import RouteArrival from './RouteArrival';
 
 const COFFEE_MENU = [
   { name: 'PISTACHIO TIRAMISU ICED LATTE', jp: 'ピスタチオ・ティラミス・アイスラテ', price: '¥780', featured: true },
@@ -21,6 +22,7 @@ const TEA_MENU = [
 export default function CafeHome() {
   return (
     <main className="cafe-home" id="top">
+      <RouteArrival destination="MOSS" accent="AND CREAM" detail="CAFE HOME · A QUIET PLACE FOR GOOD COFFEE" />
       <div className="home-promo">MOSS AND CREAM · SPECIALTY COFFEE &amp; SLOW MOMENTS</div>
 
       <header className="home-header">
@@ -68,9 +70,9 @@ export default function CafeHome() {
           <h2>PISTACHIO<br />TIRAMISU<br /><em>ICED LATTE</em></h2>
           <p className="featured-jp">香ばしいピスタチオ、深いエスプレッソ、軽やかなティラミスフォーム。層が生まれる工程をスクロールで体験できます。</p>
           <div className="featured-price"><strong>¥780</strong><span>tax included</span></div>
-          <ExperienceLink className="experience-link" href="/menu/pistachio-tiramisu-latte">
+          <TransitionLink className="experience-link" href="/menu/pistachio-tiramisu-latte" destination="DRINK" accent="EXPERIENCE" detail="PISTACHIO TIRAMISU ICED LATTE">
             制作過程を見る <ArrowUpRight />
-          </ExperienceLink>
+          </TransitionLink>
         </div>
       </section>
 
@@ -125,7 +127,7 @@ function MenuGroup({ title, items }: { title: string; items: MenuItem[] }) {
           );
 
           return item.featured ? (
-            <ExperienceLink className="menu-row is-active" href="/menu/pistachio-tiramisu-latte" key={item.name}>{content}</ExperienceLink>
+            <TransitionLink className="menu-row is-active" href="/menu/pistachio-tiramisu-latte" destination="DRINK" accent="EXPERIENCE" detail={item.name} key={item.name}>{content}</TransitionLink>
           ) : (
             <div className="menu-row" key={item.name}>{content}</div>
           );

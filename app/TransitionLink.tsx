@@ -3,13 +3,27 @@
 import type { MouseEvent, ReactNode } from 'react';
 import { useEffect, useRef, useState } from 'react';
 
-type ExperienceLinkProps = {
+type TransitionLinkProps = {
   href: string;
   className?: string;
   children: ReactNode;
+  destination: string;
+  accent: string;
+  detail: string;
+  ariaLabel?: string;
+  onClick?: (event: MouseEvent<HTMLAnchorElement>) => void;
 };
 
-export default function ExperienceLink({ href, className, children }: ExperienceLinkProps) {
+export default function TransitionLink({
+  href,
+  className,
+  children,
+  destination,
+  accent,
+  detail,
+  ariaLabel,
+  onClick,
+}: TransitionLinkProps) {
   const [transitioning, setTransitioning] = useState(false);
   const timerRef = useRef<number | null>(null);
 
@@ -19,6 +33,7 @@ export default function ExperienceLink({ href, className, children }: Experience
   }, []);
 
   const navigate = (event: MouseEvent<HTMLAnchorElement>) => {
+    onClick?.(event);
     if (
       event.defaultPrevented
       || event.button !== 0
@@ -42,19 +57,18 @@ export default function ExperienceLink({ href, className, children }: Experience
 
   return (
     <>
-      <a className={className} href={href} onClick={navigate} aria-busy={transitioning || undefined}>
+      <a className={className} href={href} onClick={navigate} aria-label={ariaLabel} aria-busy={transitioning || undefined}>
         {children}
       </a>
       <div className={`route-transition ${transitioning ? 'is-active' : ''}`} aria-hidden="true">
         <div className="route-transition-panel route-transition-panel-left" />
         <div className="route-transition-panel route-transition-panel-right" />
         <div className="route-transition-copy">
-          <span>YOUR SELECTION</span>
-          <strong>PISTACHIO<br />TIRAMISU<br /><i>ICED LATTE</i></strong>
-          <div><b>01</b><em>SCROLL EXPERIENCE</em><b>05</b></div>
+          <span>MOSS AND CREAM · AOMORI</span>
+          <strong>{destination}<br /><i>{accent}</i></strong>
+          <div><b>MC</b><em>{detail}</em><b>→</b></div>
         </div>
       </div>
     </>
   );
 }
-

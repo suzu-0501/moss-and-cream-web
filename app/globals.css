@@ -35,11 +35,11 @@ html.reservation-open, html.reservation-open body { overflow: hidden; }
 .route-transition.is-active .route-transition-panel-left { animation: transitionPanelIn .78s cubic-bezier(.76, 0, .24, 1) forwards; }
 .route-transition.is-active .route-transition-panel-right { animation: transitionPanelIn .78s cubic-bezier(.76, 0, .24, 1) forwards; }
 .route-transition.is-active::after { content: ''; position: absolute; z-index: 2; top: 0; bottom: 0; left: 50%; width: 1px; background: rgba(213,224,174,.42); transform: scaleY(0); animation: transitionLineIn .42s .45s ease forwards; }
-.route-brand-seal { position: absolute; z-index: 6; top: clamp(22px, 6vh, 66px); left: 50%; width: clamp(54px, 5.2vw, 76px); aspect-ratio: 1; display: grid; place-items: center; padding: 7px; border: 1px solid rgba(220,226,192,.42); border-radius: 50%; background: rgba(244,242,236,.96); box-shadow: 0 0 0 7px rgba(244,242,236,.045), 0 18px 46px rgba(0,0,0,.24); transform: translate(-50%, -14px) scale(.76) rotate(-9deg); opacity: 0; }
-.route-brand-seal::after { content: ''; position: absolute; inset: -8px; border: 1px solid rgba(200,211,157,.16); border-radius: inherit; }
-.route-brand-seal .brand-mark-shell { width: 100%; height: 100%; border: 0; }
-.route-transition.is-active .route-brand-seal { animation: routeBrandIn .46s .3s cubic-bezier(.2,.8,.2,1) forwards; }
-.route-arrival .route-brand-seal { opacity: 1; transform: translate(-50%, 0) scale(1); animation: routeBrandAway .38s .26s ease forwards; }
+.route-brand-seal { position: absolute; z-index: 2; top: 50%; left: 50%; width: clamp(420px, 72vw, 1040px); aspect-ratio: 1; transform: translate(-50%, -50%) scale(.76) rotate(-12deg); opacity: 0; }
+.route-brand-seal .brand-mark-shell { width: 100%; height: 100%; overflow: visible; border: 0; border-radius: 0; background: transparent; }
+.route-brand-seal .brand-mark-image { filter: grayscale(1) contrast(1.35); mix-blend-mode: multiply; }
+.route-transition.is-active .route-brand-seal { animation: routeBrandIn .78s .12s cubic-bezier(.2,.8,.2,1) forwards; }
+.route-arrival .route-brand-seal { opacity: .68; transform: translate(-50%, -50%) scale(1) rotate(-2deg); animation: routeBrandAway .72s .12s ease forwards; }
 .route-transition-copy, .route-arrival-copy { position: absolute; z-index: 3; top: 50%; left: 50%; width: min(82vw, 720px); color: var(--paper-soft); text-align: center; transform: translate(-50%, -48%); }
 .route-transition-copy { opacity: 0; }
 .route-transition.is-active .route-transition-copy { animation: transitionCopyIn .45s .4s ease forwards; }
@@ -78,8 +78,8 @@ html.reservation-open, html.reservation-open body { overflow: hidden; }
 @keyframes routeLayerLine { to { transform: scaleX(1); } }
 @keyframes routeLayerLabel { to { opacity: 1; } }
 @keyframes routeOrbit { to { transform: rotate(360deg); } }
-@keyframes routeBrandIn { to { opacity: 1; transform: translate(-50%, 0) scale(1) rotate(0); } }
-@keyframes routeBrandAway { to { opacity: 0; transform: translate(-50%, -12px) scale(.86) rotate(7deg); } }
+@keyframes routeBrandIn { to { opacity: .68; transform: translate(-50%, -50%) scale(1) rotate(-2deg); } }
+@keyframes routeBrandAway { to { opacity: 0; transform: translate(-50%, -50%) scale(1.14) rotate(5deg); } }
 
 .route-arrival { animation: arrivalLayerAway .01s 1.24s forwards; }
 .route-arrival-panel-left { left: 0; animation: arrivalPanelLeft .8s .48s cubic-bezier(.76, 0, .24, 1) forwards; }
@@ -472,7 +472,7 @@ footer > a:last-child { justify-self: end; text-decoration: none; }
 }
 
 @media (max-width: 560px) {
-  .route-brand-seal { top: 22px; width: 52px; padding: 5px; }
+  .route-brand-seal { top: 54%; width: 122vw; }
   .route-transition--drink .route-transition-copy, .route-arrival--drink .route-arrival-copy { z-index: 5; top: 24%; left: 20px; width: calc(100vw - 40px); text-align: left; transform: none; }
   .route-transition--drink.is-active .route-transition-copy { animation-name: transitionCopyInMobile; }
   .route-arrival--drink .route-arrival-copy { animation-name: arrivalCopyAwayMobile; }

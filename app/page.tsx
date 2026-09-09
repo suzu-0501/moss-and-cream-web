@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { ArrowDown, ArrowUpRight, Clock3, MapPin } from 'lucide-react';
 import ExperienceLink from './ExperienceLink';
 import CafeCta from './CafeCta';
+import SpaceSection from './SpaceSection';
 
 const COFFEE_MENU = [
   { name: 'PISTACHIO TIRAMISU ICED LATTE', jp: 'ピスタチオ・ティラミス・アイスラテ', price: '¥780', featured: true },
@@ -28,6 +29,7 @@ export default function CafeHome() {
         </a>
         <nav aria-label="店舗ナビゲーション">
           <a href="#featured">FEATURED</a>
+          <a href="#space">SPACE</a>
           <a href="#menu">MENU</a>
           <a href="#visit">VISIT</a>
         </nav>
@@ -54,13 +56,15 @@ export default function CafeHome() {
         </div>
       </section>
 
+      <SpaceSection />
+
       <section className="featured-drink" id="featured">
         <div className="featured-image">
           <Image src="/assets/drink-final.webp" alt="おすすめのピスタチオティラミスアイスラテ" fill sizes="(max-width: 800px) 100vw, 58vw" />
           <span>BARISTA RECOMMENDATION</span>
         </div>
         <div className="featured-copy">
-          <p>02 / FEATURED DRINK</p>
+          <p>03 / FEATURED DRINK</p>
           <h2>PISTACHIO<br />TIRAMISU<br /><em>ICED LATTE</em></h2>
           <p className="featured-jp">香ばしいピスタチオ、深いエスプレッソ、軽やかなティラミスフォーム。層が生まれる工程をスクロールで体験できます。</p>
           <div className="featured-price"><strong>¥780</strong><span>tax included</span></div>
@@ -72,7 +76,7 @@ export default function CafeHome() {
 
       <section className="cafe-menu" id="menu">
         <div className="menu-heading">
-          <p>03 / FULL MENU</p>
+          <p>04 / FULL MENU</p>
           <h2>CHOOSE YOUR<br /><em>QUIET FAVORITE.</em></h2>
           <span>SCROLL EXPERIENCE 表示の商品から、その一杯ができるまでのストーリーへ進めます。</span>
         </div>
@@ -83,7 +87,7 @@ export default function CafeHome() {
 
       <section className="visit-section" id="visit">
         <div>
-          <p>04 / VISIT</p>
+          <p>05 / VISIT</p>
           <h2>SEE YOU<br /><em>AT THE COUNTER.</em></h2>
         </div>
         <div className="visit-details">
